@@ -134,7 +134,7 @@ class ANALYSIS:
         High_MET="&& (   MET_et/PTj_a>0.3)";
 
         SR1a= PS + Low_MET + "&& ( V1_emvqqvsQCD_a>=0.9 || jetAK8puppi_V1_probHww4q3qvsQCD_a >=0.9 ) ";
-        SR1b= PS + Low_MET + "&& ((V1_emvqqvsQCD_a<=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a >=0.9 )  || (V1_emvqqvsQCD_a>=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a<=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a>0.75)) || ( V1_emvqqvsQCD_a>=0.95 && jetAK8puppi_V1_probHww4q3qvsQCD_a <=0.75 )) ";
+        SR1b= PS + Low_MET + "&& ( (V1_emvqqvsQCD_a<=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a >=0.9 )  || (V1_emvqqvsQCD_a>=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a<=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a>0.75) || ( V1_emvqqvsQCD_a>=0.95 && jetAK8puppi_V1_probHww4q3qvsQCD_a <=0.75 )) ";
         SR2a= PS + High_MET + "&& ( V1_emvqqvsQCD_a>=0.9 || jetAK8puppi_V1_probHww4q3qvsQCD_a >=0.9 ) "; 
         SR2b= PS + High_MET + "&& ((V1_emvqqvsQCD_a<=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a >=0.9 )  || (V1_emvqqvsQCD_a>=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a<=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a>0.75) || ( V1_emvqqvsQCD_a>=0.95 && jetAK8puppi_V1_probHww4q3qvsQCD_a <=0.75 )) "; 
 
