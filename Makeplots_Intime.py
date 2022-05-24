@@ -95,6 +95,9 @@ class ANALYSIS:
         self.color_palet={'data':1, 'QCD':2,  'Rest':62,  'VV':62, 'STop':8, 'TTbar':80, 'ZJets':6, 'WJets':90, 'Signal':1, 'Uncertainty':1, }
         self.Signal_Scale1 = 1;
         self.Signal_Scale2 = 1;
+        self.KeepColumn = {"MET_et", "Nj8", "weight"}
+        self.Plot2DFaster = False
+        self.Optimal = True
         self.Intime_Cut_Variable = ["DPhi_mgR_mg","DPhi_mg_MET","DPhi_mgR_MET","MET_o_PT_R","MR_v2"];
 
     #================ SETTINGS FOR Canvas/pads/histos and more ==================
@@ -116,7 +119,7 @@ class ANALYSIS:
 
 
     def DefineSelection_0lep(self):#==========[ 0lep REGIONS & SELECTION ]===========================================
-        REGION=options.REGION; MODE=options.MODE;
+        REGION=options.REGION; MODE=options.MODE ;year=options.y;
 
         #-------------------------- PRE/SELECTION -----------------------------------------------------
         PS1 = "HT>1100 && ( (Nj8==2 && MJJ>900 ) || (Nj8==3 && MJJJ>900 ) || (Nj8==4 && MJJJ>900 ) ) && PTj>550 && PTj_2>200 && Mj_max>50";
@@ -152,14 +155,14 @@ class ANALYSIS:
 
 
     def Make_Controlplots_for_0lep(self,selection,selection2,tag,CR=0):
-        REGION=options.REGION; Nj=234; MODE=options.MODE; logy=0; tag="";
+        REGION=options.REGION; Nj=234; MODE=options.MODE; logy=0; tag="";year=options.y;SEL=selection2;IT=False;
         t41max = "tau41_max"; t41mid = "tau41_mid"; t41min = "tau41_min"; t31max = "tau31_max"; t31mid = "tau31_mid"; t31min = "tau31_min"; t21max = "tau21_max"; t21mid = "tau21_mid"; t21min = "tau21_min"; t42max = "tau42_max"; t42mid = "tau42_mid"; t42min = "tau42_min";
         Nb="nbtag_deep"; Nj4="num_ak4jetsex"; NbT="nbtag_deep_tight"; NbL="nbtag_deep_loose";
         # deep_WH_max="(jetAK8puppi_dnnDecorrh4q_max+jetAK8puppi_dnnDecorrw_max)/(jetAK8puppi_dnnDecorrh4q_max+jetAK8puppi_dnnDecorrw_max+jetAK8puppi_dnnDecorrqcd_max)";
         deep_H_max ="jetAK8puppi_dnnDecorrH4q_max";deep_H_mid="jetAK8puppi_dnnDecorrH4q_mid";deep_H_min="jetAK8puppi_dnnDecorrH4q_min";
         deep_W_max ="jetAK8puppi_dnnDecorrW_max";  deep_W_mid="jetAK8puppi_dnnDecorrW_mid";  deep_W_min="jetAK8puppi_dnnDecorrW_min";
         deep_t_max ="jetAK8puppi_dnnDecorrTop_max";deep_t_mid="jetAK8puppi_dnnDecorrTop_mid";deep_t_min="jetAK8puppi_dnnDecorrTopmin";
-
+        Intime = False;
         if MODE in ["MC","MCvsDATA","DECO"]:
             logy=0;
 
