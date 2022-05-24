@@ -12,8 +12,7 @@ from subprocess import Popen
 from optparse   import OptionParser
 from time       import gmtime, strftime
 from array import array
-from ROOT import gROOT, TPaveLabel, TPie, gStyle, gSystem, TGaxis, TStyle, TLatex, TString, TF1,TFile,TLine, TLegend, TH1D,TH2D,THStack, TGraph, TGraphErrors,TChain,TArrow, TCanvas, TMatrixDSym, TMath, TText, TPad, TVectorD, RooFit, RooArgSet, RooArgList, RooArgSet, RooAbsData, RooAbsPdf, RooAddPdf, RooWorkspace, RooExtendPdf,RooCBShape, RooLandau, RooFFTConvPdf, RooGaussian, RooBifurGauss, RooArgusBG,RooDataSet, RooExponential,RooBreitWigner, RooVoigtian, RooNovosibirsk, RooRealVar,RooFormulaVar, RooDataHist, RooHist,RooCategory, RooChebychev, RooSimultaneous, RooGenericPdf,RooConstVar, RooKeysPdf, RooHistPdf, RooEffProd, RooProdPdf, TIter, kTRUE, kFALSE, kGray, kRed, kDashed, kGreen,kAzure, kOrange, kBlack,kBlue,kYellow,kCyan, kMagenta, kWhite
-parser = OptionParser()
+from ROOT import gROOT, TPaveLabel, TPie, gStyle, gSystem, TGaxis, TStyle, TLatex, TString, TF1,TFile,TLine, TLegend, TH1D,TH2D,THStack, TGraph, TGraphErrors,TChain,TArrow, TCanvas, TMatrixDSym, TMath, TText, TPad, TVectorD, RooFit, RooArgSet, RooArgList, RooArgSet, RooAbsData, RooAbsPdf, RooAddPdf, RooWorkspace, RooExtendPdf,RooCBShape, RooLandau, RooFFTConvPdf, RooGaussian, RooBifurGauss, RooArgusBG,RooDataSet, RooExponential,RooBreitWigner, RooVoigtian, RooNovosibirsk, RooRealVar,RooFormulaVar, RooDataHist, RooHist,RooCategory, RooChebychev, RooSimultaneous, RooGenericPdf,RooConstVar, RooKeysPdf, RooHistPdf, RooEffProd, RooProdPdf, TIter, kTRUE, kFALSE, kGray, kRed, kDashed, kGreen,kAzure, kOrange, kBlack,kBlue,kYellow,kCyan, kMagenta, kWhiteparser = OptionParser()
 parser.add_option('--channel',    action="store",type="string",dest="channel"    ,default="had")
 parser.add_option('--MODE',       action="store",type="string",dest="MODE"       ,default="MC" )
 parser.add_option('--REGION',     action="store",type="string",dest="REGION"     ,default="PS" )
@@ -94,6 +93,7 @@ class ANALYSIS:
         self.color_palet={'data':1, 'QCD':2,  'Rest':62,  'VV':62, 'STop':8, 'TTbar':80, 'ZJets':6, 'WJets':90, 'Signal':1, 'Uncertainty':1, }
         self.Signal_Scale1 = 1;
         self.Signal_Scale2 = 1;
+        self.Intime_Cut_Variable = ["DPhi_mgR_mg","DPhi_mg_MET","DPhi_mgR_MET","MET_o_PT_R","MR_v2"];
 
     #================ SETTINGS FOR Canvas/pads/histos and more ==================
     def setTDRStyle(self):
@@ -124,6 +124,21 @@ class ANALYSIS:
         PS4 = " 1 ";
         PS5=" deepWH_Nj2_a == 1 ";
         LowMET="("+PS+")  && MET_et/PTj_a<0.3";
+
+        Low_MET="&& (    MET_et/PTj_a<0.3)";
+        High_MET="&& (   MET_et/PTj_a>0.3)";
+
+        SR1a= PS + Low_MET + "&& ( V1_emvqqvsQCD_a>=0.9 || jetAK8puppi_V1_probHww4q3qvsQCD_a >=0.9 ) ";
+        SR1b= PS + Low_MET + "&& ((V1_emvqqvsQCD_a<=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a >=0.9 )  || (V1_emvqqvsQCD_a>=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a<=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a>0.75)) || ( V1_emvqqvsQCD_a>=0.95 && jetAK8puppi_V1_probHww4q3qvsQCD_a <=0.75 )) ";
+        SR2a= PS + High_MET + "&& ( V1_emvqqvsQCD_a>=0.9 || jetAK8puppi_V1_probHww4q3qvsQCD_a >=0.9 ) "; 
+        SR2b= PS + High_MET + "&& ((V1_emvqqvsQCD_a<=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a >=0.9 )  || (V1_emvqqvsQCD_a>=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a<=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a>0.75) || ( V1_emvqqvsQCD_a>=0.95 && jetAK8puppi_V1_probHww4q3qvsQCD_a <=0.75 )) "; 
+
+        SR1ab="("+SR1a+") || ("+SR1b+")";
+        SR2ab="("+SR2a+") || ("+SR2b+")";
+
+        CR1=PS + Low_MET + "&&  ((V1_emvqqvsQCD_a<=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a<=0.9) || (V1_emvqqvsQCD_a<=0.95 && jetAK8puppi_V1_probHww4q3qvsQCD_a <=0.75))";
+        CR2=PS + High_MET + "&&  ((V1_emvqqvsQCD_a<=0.9 && jetAK8puppi_V1_probHww4q3qvsQCD_a<=0.9) || (V1_emvqqvsQCD_a<=0.95 && jetAK8puppi_V1_probHww4q3qvsQCD_a <=0.75))";
+
         TaggerCut1 ="("+PS+")  && MET_et/PTj_a<0.3 && jetAK8puppi_V1_probHww4q3qvsQCD_a >=0.9" 
         TaggerCut2 ="("+PS+")  && MET_et/PTj_a>0.3 && V1_emvqqvsQCD_a>=0.9" 
         MET2="Nj8==2 && MET_et/PTj_a>=0.3 && MET_et/PTj_a < 0.6";
@@ -187,18 +202,22 @@ class ANALYSIS:
             #self.construct_plot(Nj, "JetMass_Nj2_c"    ,selection          ,"",tag  ,50, 0 ,60,"Mj_c, Nj=2"                        ,"Events" ,logy,CR);             
             #self.construct_plot(Nj, "JetMass_Nj2_a"    ,selection          ,"",tag  ,50, 0 ,250,"Mj_a, Nj=2"                        ,"Events" ,logy,CR);             
             #self.construct_plot(Nj, "JetMass_Nj2_c"    ,selection          ,"",tag  ,50, 0 ,250,"Mj_c, Nj=2"                        ,"Events" ,logy,CR);             
+            self.construct_plot(Nj, "Mj_a"    ,selection          ,"",tag  ,25, 0 ,250,"Mj_a(GeV), Nj>=2"                        ,"Events" ,logy,CR);             
+            self.construct_plot(Nj,"MH_v1"    ,selection, "", tag  ,25,0,250 ,"Mj_a_v1 (GeV),NJ>=2" , "Events" ,logy,CR,Intime=True);
+            self.construct_plot(Nj,"DPhi_g_H",selection,"",tag,32,0,3.2,"|#Delta#phi(g,H)|"          , "Events" ,logy,CR,Intime=True);
+            self.construct_plot(Nj,"DPhi_H_MET",selection,"",tag,32,0,3.2,"|#Delta#phi(MET,H)|"          , "Events" ,logy,CR,Intime=True);
             #self.construct_plot(Nj, "Mj_a"    ,selection          ,"",tag  ,25, 0 ,250,"Mj_a, Nj>=2"                        ,"Events" ,logy,CR);             
             #self.construct_plot(Nj, "fabs(Etaj_a - Etaj_c)"    ,selection          ,"",tag  ,10, 0 ,3,"|#Delta#etajj|,Nj>=2"                        ,"Events" ,logy,CR);             
             #self.construct_plot(Nj, "PTj_a"    ,selection          ,"",tag  ,50, 100 ,2200,"PTj_a, Nj=2"                        ,"Events" ,logy,CR);             
             # self.construct_plot(Nj, "JetMass_Nj2_c_new"    ,selection          ,"",tag  ,50, 0 ,250,"Mj_c, using new H4q tagger,Nj=2"                        ,"Events" ,logy,CR);             
             # self.construct_plot(Nj, "MET_pt/Pt_Nj2_a_new"    ,selection          ,"",tag  ,50, 0 ,1,"MET/PT_Higgs, using new H4q tagger order,Nj=2"                        ,"Events" ,logy,CR);                       
-            self.construct_plot(Nj, "MET_et"    ,selection          ,"",tag  ,10, 0 ,200,"MET, Nj>=2"                        ,"Events" ,logy,CR);             
+            #self.construct_plot(Nj, "MET_et"    ,selection          ,"",tag  ,10, 0 ,200,"MET, Nj>=2"                        ,"Events" ,logy,CR);             
             # self.construct_plot(Nj, "Pt_Nj2_a_new"    ,selection          ,"",tag  ,50,100,2200,"P_T for ja,using new H4q tagger, Nj=2"                        ,"Events" ,logy,CR);             
             # self.construct_plot(Nj, "Pt_Nj2_c_new"    ,selection          ,"",tag  ,50, 100 ,2200,"P_T for jc,using new H4q tagger, Nj=2"                        ,"Events" ,logy,CR);             
             #self.construct_plot(Nj, "Pt_Nj2_a"    ,selection          ,"",tag  ,50,100,2200,"P_T for ja, Nj=2"                        ,"Events" ,logy,CR);             
             #self.construct_plot(Nj, "Pt_Nj2_c"    ,selection          ,"",tag  ,50, 100 ,2200,"P_T for jc, Nj=2"                        ,"Events" ,logy,CR);             
-            self.construct_plot(Nj, "MET_et/PTj_a"    ,selection          ,"",tag  ,10, 0 ,0.5,"MET/PT_H, Nj>=2"                        ,"Events" ,logy,CR);             
-            self.construct_plot(Nj, "MET_et/((PTj_a + PTj_b + PTj_c)**0.5)"    ,selection          ,"",tag  ,10, 0 ,7,"MET Significance, Nj>=2"                        ,"Events" ,logy,CR);             
+            #self.construct_plot(Nj, "MET_et/PTj_a"    ,selection          ,"",tag  ,10, 0 ,0.5,"MET/PT_H, Nj>=2"                        ,"Events" ,logy,CR);             
+            #self.construct_plot(Nj, "MET_et/((PTj_a + PTj_b + PTj_c)**0.5)"    ,selection          ,"",tag  ,10, 0 ,7,"MET Significance, Nj>=2"                        ,"Events" ,logy,CR);             
             # self.construct_plot(Nj, "Pt_Nj2_a"    ,selection          ,"",tag  ,50, 100 ,800,"P_T for ja, Nj=2"                        ,"Events" ,logy,CR);             
             # self.construct_plot(Nj, "Pt_Nj2_c"    ,selection          ,"",tag  ,50, 100 ,800,"P_T for jc, Nj=2"                        ,"Events" ,logy,CR);             
             # self.construct_plot(Nj, "MET_pt/Pt_Nj2_a"    ,selection          ,"",tag  ,52, -0.05 ,1.05,"MET/P_T for ja, Nj=2"                        ,"Events" ,logy,CR);             
@@ -356,7 +375,7 @@ class ANALYSIS:
             self.construct_plot(Nj,"Mj_max"           ,selection_SR,selection_CR,tag,24, 0, 120,"Mjmax (GeV)" ,"Events",0 );
 
 
-    def construct_plot(self,Nj,variable,cut,cut1,tag,nbin,min,max,xtitle="",ytitle="",logy=1,CR=0):
+    def construct_plot(self,Nj,variable,cut,cut1,tag,nbin,min,max,xtitle="",ytitle="",logy=1,CR=0,Intime=False):
         
         SFs=options.SFs; channel=options.channel; MODE=options.MODE;  REGION=options.REGION; 
         print " -->  MODE:",MODE," variable:",variable,"\n       { "+cut+" }\n";
@@ -397,6 +416,236 @@ class ANALYSIS:
         t_WJets   = TChain("PKUTree");  t_WJets.Add(  path+"BKG/WJ.root");  h_WJets  =TH1D("h_WJets"  ,"h_WJets"  +";%s;%s"%(xtitle,ytitle),nbin,min,max);  h_WJets.Sumw2(); 
         t_Rest    = TChain("PKUTree");  t_Rest.Add(   path+"BKG/Rest.root" );  h_Rest   =TH1D("h_Rest"   ,"h_Rest"   +";%s;%s"%(xtitle,ytitle),nbin,min,max);  h_Rest.Sumw2();   
 
+
+        if Intime:
+            # ROOT.EnableImplicitMT() # allow to use mutiple core
+            MJJ_v1 = ''' TLorentzVector g,R,MET,P_imb;  R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c,Etaj_c,Phij_c,Mj_c ); MET.SetPtEtaPhiM( MET_et,0,MET_phi,0 );  if( fabs(MET.DeltaPhi(-g)) < 1  &&  (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM( MET_et,R.Eta(),MET_phi,0 ); R=R+MET; }; 
+                        P_imb.SetPtEtaPhiM( (-R-g-MET ).Pt(),0,(-R-g-MET).Phi() ,0 );
+                        return ( g + R ).M(); '''
+            MJJ_v2 = ''' TLorentzVector g,R,MET,P_imb;  R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c,Etaj_c,Phij_c,Mj_c ); MET.SetPtEtaPhiM( MET_et,0,MET_phi,0 );  if( fabs(MET.DeltaPhi(-g)) < 1  &&  (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM( MET_et,R.Eta(),MET_phi,0 ); R=R+MET; }; 
+                        P_imb.SetPtEtaPhiM( (-R-g-MET ).Pt(),0,(-R-g-MET).Phi() ,0 );
+                        return ( g + R ).M() - g.M(); '''
+            MR_v1  = ''' TLorentzVector g,R,MET,P_imb; 
+                     R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); 
+                     g.SetPtEtaPhiM( PTj_c,Etaj_c,Phij_c,Mj_c ); 
+                     MET.SetPtEtaPhiM( MET_et,R.Eta(),MET_phi,0 ); 
+                     P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),0,(-R-MET-g).Phi(),0 );
+                        if( fabs(MET.DeltaPhi(-g)) < 1  &&  (MET.Pt()/R.Pt()) > 0.1 ){ R=R+MET; };
+                        return ( R ).M(); '''
+
+            MH_v1  = ''' TLorentzVector g,H,MET,P_imb; 
+                     H.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); 
+                     g.SetPtEtaPhiM( PTj_c,Etaj_c,Phij_c,Mj_c ); 
+                     MET.SetPtEtaPhiM( MET_et,H.Eta(),MET_phi,0 ); 
+                     P_imb.SetPtEtaPhiM( (-H-MET-g).Pt(),0,(-H-MET-g).Phi(),0 );
+                        if( fabs(MET.DeltaPhi(-g)) < 1  &&  (MET.Pt()/H.Pt()) > 0.1 ){ H=H+MET; };
+                        return ( H ).M(); '''
+
+
+            MJJJ_v1 =''' TLorentzVector g,Wa,Wb,P_imb;  Wa.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); Wb.SetPtEtaPhiM( PTj_b,Etaj_b,Phij_b,Mj_b ); g.SetPtEtaPhiM( PTj_c,Etaj_c,Phij_c,Mj_c );  return ( (g+Wa+Wb).M() -Wa.M()-Wb.M()+160.8 ); '''
+            MJJJ_v2 =''' TLorentzVector g,Wa,Wb,P_imb;  Wa.SetPtEtaPhiM( PTj_a*(80.4/Mj_a),Etaj_a,Phij_a,80.4); Wb.SetPtEtaPhiM(PTj_b*(80.4/Mj_b),Etaj_b,Phij_b,80.4);  g.SetPtEtaPhiM( PTj_c,Etaj_c,Phij_c,Mj_c );                 return (g+Wa+Wb).M(); '''
+            MJJJ_v3 =''' TLorentzVector g,Wa,Wb,P_imb;  Wa.SetPtEtaPhiM( PTj_a*(80.4/Mj_a),Etaj_a,Phij_a,80.4); Wb.SetPtEtaPhiM(PTj_b*(80.4/Mj_b),Etaj_b,Phij_b,80.4);  g.SetPtEtaPhiM( PTj_c,Etaj_c,(-Wa-Wb).Phi(),Mj_c );         return (g+Wa+Wb).M(); '''
+            MJJJ_v4 =''' TLorentzVector g,Wa,Wb,P_imb;  Wa.SetPtEtaPhiM( PTj_a*(80.4/Mj_a),Etaj_a,Phij_a,80.4); Wb.SetPtEtaPhiM(PTj_b*(80.4/Mj_b),Etaj_b,Phij_b,80.4);  g.SetPtEtaPhiM( (-Wa-Wb).Pt(),Etaj_c,(-Wa-Wb).Phi(),Mj_c ); return (g+Wa+Wb).M(); '''
+
+            MWW_v1 =''' TLorentzVector g,Wa,Wb,P_imb;  Wa.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); Wb.SetPtEtaPhiM( PTj_b,Etaj_b,Phij_b,Mj_b ); g.SetPtEtaPhiM( PTj_c,Etaj_c,Phij_c,Mj_c ); P_imb.SetPtEtaPhiM( (-g-Wa-Wb).Pt(),(-Wa-Wb).Eta(),(-g-Wa-Wb).Phi(),0 );  return ((Wa+Wb).M() -Wa.M()-Wb.M()+160.8 ); '''
+            MWW_v2 =''' TLorentzVector g,Wa,Wb,P_imb;  Wa.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); Wb.SetPtEtaPhiM( PTj_b,Etaj_b,Phij_b,Mj_b ); g.SetPtEtaPhiM( PTj_c,Etaj_c,Phij_c,Mj_c ); P_imb.SetPtEtaPhiM( (-g-Wa-Wb).Pt(),(-Wa-Wb).Eta(),(-g-Wa-Wb).Phi(),0 );  return  (Wa+Wb).M(); '''
+            MWW_v3 =''' TLorentzVector g,Wa,Wb,P_imb;  Wa.SetPtEtaPhiM( PTj_a*(80.4/Mj_a),Etaj_a,Phij_a, 80.4 ); Wb.SetPtEtaPhiM( PTj_b*(80.4/Mj_b),Etaj_b,Phij_b,80.4 );                                                 g.SetPtEtaPhiM( PTj_c,Etaj_c,Phij_c,Mj_c );  return  (Wa+Wb).M(); '''
+            MWW_v4 =''' TLorentzVector g,Wa,Wb,P_imb;  Wa.SetPtEtaPhiM( PTj_a*(80.4/Mj_a),Etaj_a,Phij_a, 80.4 ); Wb.SetPtEtaPhiM( PTj_b,Etaj_b,Phij_b,Mj_b );                                                             g.SetPtEtaPhiM( PTj_c,Etaj_c,Phij_c,Mj_c );  return  (Wa+Wb).M(); '''
+            MWW_v5 =''' TLorentzVector g,Wa,Wb,P_imb;  Wa.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); Wb.SetPtEtaPhiM( PTj_b,Etaj_b,Phij_b,Mj_b ); g.SetPtEtaPhiM( PTj_c,Etaj_c,Phij_c,Mj_c ); P_imb.SetPtEtaPhiM( (-g-Wa-Wb).Pt(),(-Wa-Wb).Eta(),(-g-Wa-Wb).Phi(),0 );  return ((Wa+Wb).M() -Wa.M()+80.4 ); '''
+
+            MTR   = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return (R).Mt(); '''
+            MTR2  = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);            return (R+MET).Mt(); '''
+
+            DPhi_g_R   = ''' TLorentzVector g,R,MET,P_imb,P_asy; 
+             R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  
+             g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  
+             MET.SetPtEtaPhiM(MET_et,0,MET_phi,0);
+              if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 )
+              { MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  
+              P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );
+                P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0);
+            return fabs((g).DeltaPhi(R)); '''
+
+            DPhi_g_H   = ''' TLorentzVector g,H,MET,P_imb,P_asy; 
+             H.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  
+             g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  
+             MET.SetPtEtaPhiM(MET_et,0,MET_phi,0);
+              if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/H.Pt()) > 0.1 )
+              { MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  
+              P_imb.SetPtEtaPhiM( (-H-MET-g).Pt(),(-H-MET-g).Eta(),(-H-MET-g).Phi(),0 );
+                P_asy.SetPtEtaPhiM((-g-H).Pt(),(-H-g).Eta(),(-g-H).Phi(),0);
+            return fabs((g).DeltaPhi(H)); '''
+
+
+            DPhi_mg_R   = ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0);
+            return fabs((-g).DeltaPhi(R)); '''
+            DPhi_mg_MET = ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0);
+            return fabs((-g).DeltaPhi(MET)); '''
+            DPhi_mgR_MET = ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0);
+            return fabs((-g-R).DeltaPhi(MET)); '''
+            DPhi_mgR_Pim = ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0);
+            return fabs((-g-R).DeltaPhi(P_imb)); '''
+            DPhi_mgR_R= ''' TLorentzVector g,R,MET,P_imb,P_asy; 
+             R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  
+             g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  
+             MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); 
+             if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 )
+             { MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); }; 
+              P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 ); 
+               P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0);
+            return fabs((-g-R).DeltaPhi(R)); '''
+            DPhi_R_MET= ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0);
+            return fabs((MET).DeltaPhi(R)); '''
+
+            DPhi_H_MET= ''' TLorentzVector g,H,MET,P_imb,P_asy; 
+             H.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  
+             g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); 
+              MET.SetPtEtaPhiM(MET_et,0,MET_phi,0);
+               if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/H.Pt()) > 0.1 )
+               { MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };
+                 P_imb.SetPtEtaPhiM( (-H-MET-g).Pt(),(-H-MET-g).Eta(),(-H-MET-g).Phi(),0 ); 
+                  P_asy.SetPtEtaPhiM((-g-H).Pt(),(-H-g).Eta(),(-g-H).Phi(),0);
+            return fabs((MET).DeltaPhi(H)); '''
+
+
+            DPhi_R_Pim   = ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0);
+            return fabs((R).DeltaPhi(P_imb)); '''
+            DPhi_MET_Pim   = ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0);
+            return fabs((MET).DeltaPhi(P_imb)); '''
+
+            X1= ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return    sqrt( 2*PTj_a*PTj_c* ( cosh(fabs(Etaj_a-Etaj_c))-cos(fabs(R.DeltaPhi(g))) ) ) / (R+g).M()    ; '''
+            X2= ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return    sqrt( 2*PTj_a*PTj_c* ( cosh(fabs(Etaj_a-Etaj_c))+1                        ) ) / (R+g).M()    ; '''
+
+            X3= ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return    sqrt(PTj_a*PTj_c) / min(PTj_a,PTj_c)   ; '''
+            X4= ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return    sqrt( 2*PTj_a*PTj_c* ( cosh(fabs(Etaj_a-Etaj_c))-cos(fabs(R.DeltaPhi(g))) ) )  /  sqrt( (R+g).M()*(R+g).M() -Mj_a*Mj_a - Mj_c*Mj_c )  ; '''
+
+            cosh_cos= ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return  cosh(fabs(Etaj_a-Etaj_c))-cos(fabs(R.DeltaPhi(g)))  ; '''
+            cosh= ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return  cosh(fabs(Etaj_a-Etaj_c)); '''
+            Dphi_R_g= ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return  fabs(R.DeltaPhi(g))  ; '''
+            PT_o_MJJ= ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return  sqrt( PTj_a*PTj_c ) / (g+R).M() ; '''
+            PTmax_o_MJJ= ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return  max(PTj_a,PTj_c) / (g+R).M() ; '''
+            PTmin_o_MJJ= ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return  min(PTj_a,PTj_c) / (g+R).M() ; '''
+            X1min= ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return  sqrt( 2*min(PTj_a,PTj_c)*min(PTj_a,PTj_c)* ( cosh(fabs(Etaj_a-Etaj_c))-cos(fabs(R.DeltaPhi(g))) ) ) / (R+g).M()    ; '''
+            X1max=''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return  sqrt( 2*max(PTj_a,PTj_c)*max(PTj_a,PTj_c)* ( cosh(fabs(Etaj_a-Etaj_c))-cos(fabs(R.DeltaPhi(g))) ) ) / (R+g).M()    ; '''
+            X2min= ''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return  sqrt( 2*min(PTj_a,PTj_c)*min(PTj_a,PTj_c)* ( cosh(fabs(Etaj_a-Etaj_c))+1 ) ) / (R+g).M() ; '''
+            X2max=''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return  sqrt( 2*max(PTj_a,PTj_c)*max(PTj_a,PTj_c)* ( cosh(fabs(Etaj_a-Etaj_c))+1 ) ) / (R+g).M() ; '''
+
+            PT_asym=''' TLorentzVector g,R,MET,P_imb,P_asy;  R.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a);  g.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c);  MET.SetPtEtaPhiM(MET_et,0,MET_phi,0); if( fabs(MET.DeltaPhi(-g)) < 1 && (MET.Pt()/R.Pt()) > 0.1 ){ MET.SetPtEtaPhiM(MET_et,Etaj_a,MET_phi,0); };  P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),(-R-MET-g).Eta(),(-R-MET-g).Phi(),0 );  P_asy.SetPtEtaPhiM((-g-R).Pt(),(-R-g).Eta(),(-g-R).Phi(),0); 
+            return PTj_3/PTj_1 ; '''
+
+            DPhi_g_MET = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return fabs((g).DeltaPhi(MET)); '''
+            DPhi_g_MET_v2 = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return fabs((-g).DeltaPhi(MET)); '''
+            DR_g_R = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return (g).DeltaR(R); '''
+            DR_R_MET = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return (R).DeltaR(MET); '''
+
+            DR_R_P_imb = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return R.DeltaR(P_imb); '''
+            DR_R_Pasy = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return R.DeltaR(P_asy); '''
+            DR_mg_Pasy = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return (-g).DeltaR(P_asy); '''
+            DR_mg_R = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return (-g).DeltaR(R); '''
+            DPhi_PT_asy_R = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return fabs((R).DeltaPhi(P_asy)); '''
+            PT_imb = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return (P_imb).Pt(); '''
+            PT_asy = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return (P_asy).Pt(); '''
+            PT_imb_o_PTj_a = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return P_imb.Pt() / R.Pt() ; '''
+            PT_asy_o_PTj_a = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return P_asy.Pt() / R.Pt() ; '''
+            PT_dif_gR = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return (g.Pt()-R.Pt()); '''
+            PT_g_R_MET = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return ( g.Pt() - R.Pt() + MET.Pt() ); '''
+            Dot_R_P_imb = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return (  R.Dot(P_imb)/(R.Mag()*P_imb.Mag()) ); '''
+            Dot_R_MET = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return (  R.Dot(MET)/(R.Mag()*MET.Mag())  ); '''
+            MET_o_PT_R = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return  MET.Pt()/R.Pt() ; '''
+            p20PT_g_o_PT_R = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return  0.20*g.Pt()/R.Pt() ; '''
+            CircularSignificance = '''bool FLIP = 0;  TLorentzVector g,R,MET,P_imb,P_asy; if(FLIP){ R.SetPtEtaPhiM(PTj_c,Etaj_c,Phij_c,Mj_c); g.SetPtEtaPhiM(PTj_a,Etaj_a,Phij_a,Mj_a); } else{ R.SetPtEtaPhiM( PTj_a,Etaj_a,Phij_a,Mj_a ); g.SetPtEtaPhiM( PTj_c, Etaj_c, Phij_c , Mj_c ); }; MET.SetPtEtaPhiM(MET_et,R.Eta(),MET_phi,0); P_imb.SetPtEtaPhiM( (-R-MET-g).Pt(),R.Eta(),(-R-MET-g).Phi(),0 ); P_asy.SetPtEtaPhiM((-g-R).Pt(),(-g-R).Eta(),(-g-R).Phi(),0);
+            return  0.5*sqrt( (MET.Pt()/R.Pt())*(MET.Pt()/R.Pt()) + (0.20*g.Pt()/R.Pt())*(0.20*g.Pt()/R.Pt()) ) ; '''
+
+            if MODE in ["MCvsDATA"] and REGION[:2]=="SR" : MODE="MC";  ## BLINDING
+
+            if MODE in ["MCvsDATA","COMP"]:
+                print " ---> tree for data";
+                df_data = ROOT.RDataFrame("PKUTree", path+"JetHT_Nj2/18.root");
+            df_QCD      = ROOT.RDataFrame("PKUTree", path+"BKG/QCD.root");
+            df_WJets    = ROOT.RDataFrame("PKUTree", path+"BKG/WJ.root");
+            df_TTbar    = ROOT.RDataFrame("PKUTree", path+"BKG/TT.root");
+            df_STop     = ROOT.RDataFrame("PKUTree", path+"BKG/ST.root");
+            df_Rest     = ROOT.RDataFrame("PKUTree", path+"BKG/Rest.root");
+            df_Signal1  = ROOT.RDataFrame("PKUTree", path+"Signal/HWWTree_2q.root");
+            df_Signal2  = ROOT.RDataFrame("PKUTree", path+"Signal/HWWTree_4q.root");
+
+            if variable not in [str(i) for i in df_QCD.GetColumnNames()]:
+                Intime_plot_var = "Var1"
+                try:
+                    print "\n"
+                    print eval(variable)
+                    if MODE in ["MCvsDATA","COMP"]:
+                        df_data= df_data.Define(   "Var1",eval(variable))
+                    df_QCD     = df_QCD.Define(    "Var1",eval(variable))
+                    df_WJets   = df_WJets.Define(  "Var1",eval(variable))
+                    df_TTbar   = df_TTbar.Define(  "Var1",eval(variable))
+                    df_STop    = df_STop.Define(   "Var1",eval(variable))
+                    df_Rest    = df_Rest.Define(   "Var1",eval(variable))
+                    df_Signal1 = df_Signal1.Define("Var1",eval(variable))
+                    df_Signal2 = df_Signal2.Define("Var1",eval(variable))
+                except (NameError,SyntaxError):
+                    print "\n"
+                    print variable
+                    if MODE in ["MCvsDATA","COMP"]:
+                        df_data    = df_data.Define(   "Var1","return (%s);"%(variable))
+                    df_QCD     = df_QCD.Define(    "Var1","return (%s);"%(variable))
+                    df_WJets   = df_WJets.Define(  "Var1","return (%s);"%(variable))
+                    df_TTbar   = df_TTbar.Define(  "Var1","return (%s);"%(variable))
+                    df_STop    = df_STop.Define(   "Var1","return (%s);"%(variable))
+                    df_Rest    = df_Rest.Define(   "Var1","return (%s);"%(variable))
+                    df_Signal1 = df_Signal1.Define("Var1","return (%s);"%(variable))
+                    df_Signal2 = df_Signal2.Define("Var1","return (%s);"%(variable))
+            else:
+                Intime_plot_var = variable
+
+            for Added_var in self.Intime_Cut_Variable:
+                if Added_var in cut:
+                    if Added_var not in [str(i) for i in df_QCD.GetColumnNames()]:
+                        if MODE in ["MCvsDATA","COMP"]:
+                            df_data= df_data.Define(Added_var , eval(Added_var))
+                        df_QCD     = df_QCD.Define(Added_var  , eval(Added_var))
+                        df_WJets   = df_WJets.Define(Added_var, eval(Added_var))
+                        df_TTbar   = df_TTbar.Define(Added_var, eval(Added_var))
+                        df_STop    = df_STop.Define(Added_var , eval(Added_var))
+                        df_Rest    = df_Rest.Define(Added_var , eval(Added_var))
+                        df_Signal1 = df_Signal1.Define(Added_var, eval(Added_var))
+                        df_Signal2 = df_Signal2.Define(Added_var, eval(Added_var))
+
+
         if MODE in ["DECO"]:
             for c in ["H4q","H3q","H2q","W","Hlqq","Hlq","g",   "Rest"]:
                 exec('h_Signal1_%s = TH1D("h_Signal1_%s","h_Signal1_%s"'%(c,c,c)+'";%s;%s"'%(xtitle,ytitle)+',nbin,min,max); h_Signal1_%s.Sumw2();'%(c));
@@ -420,17 +669,42 @@ class ANALYSIS:
         weight="weight";
         if SFs==1: weight="weight_center";
 
-        for region in ["h_"]:
-            if MODE=="DECO":self.Signal_Scale1=1;
-            for sample in ["data","Signal1","Signal2","QCD","TTbar","STop","WJets","Rest"]:
-                if MODE in ["MCvsDATA"]:
-                    if sample in ["data"]                         : eval("t_"+sample).Draw("(%s) >> %s%s"%(variable,region,sample),                                       cut  );   # No weights on data
-                #if sample in ["Signal1","Signal2"]                : eval("t_"+sample).Draw("(%s) >> %s%s"%(variable,region,sample), "(%s*%s)*(%s)"%(weight,self.Signal_Scale,cut) );   # Extra scaling on signal
-                eval(                                                    "t_Signal1").Draw("(%s) >> %s%s"%(variable,region,"Signal1"), "(%s*%s)*(%s)"%(weight,self.Signal_Scale1,cut) );   # Extra scaling on signal
-                eval(                                                    "t_Signal2").Draw("(%s) >> %s%s"%(variable,region,"Signal2"), "(%s*%s)*(%s)"%(weight,self.Signal_Scale2,cut) );   # Extra scaling on signal
-                if sample in ["QCD","TTbar","STop","WJets","Rest"]: eval("t_"+sample).Draw("(%s) >> %s%s"%(variable,region,sample), "(%s*%s)*(%s)"%(weight,1             ,cut) );   # MC only weights on MC BKG
-        #    if MODE=="COMP":
-        #        eval("t_QCD").Draw("(%s) >> %s%s"%(variable,region,"QCD_S"), "(%s*%s)*(%s)"%(weight,1  ,cut1) );
+        if MODE=="DECO":self.Signal_Scale1=1;
+
+        if Intime:
+            Bin = ("Plot",";%s;%s"%(xtitle,ytitle),nbin,min,max)
+            if MODE in ["MCvsDATA","COMP"]:
+                h_data = df_data.Filter(  cut).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_data" );
+            h_QCD     = df_QCD.Filter(    cut).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_QCD"  );
+            h_WJets   = df_WJets.Filter(  cut).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_WJets");
+            h_TTbar   = df_TTbar.Filter(  cut).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_TTbar");
+            h_STop    = df_STop.Filter(   cut).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_STop" );
+            h_Rest    = df_Rest.Filter(   cut).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_Rest" );
+            h_Signal1 = df_Signal1.Filter(cut).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_Signal1"); h_Signal1.Scale(self.Signal_Scale1);
+            h_Signal2 = df_Signal2.Filter(cut).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_Signal2"); h_Signal2.Scale(self.Signal_Scale2);
+            h_QCD_S   = df_QCD.Filter(   cut1).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_QCD_S"  );
+        else:
+            for region in ["h_"]:
+                for sample in ["data","Signal1","Signal2","QCD","WJets","TTbar","STop","Rest"]:
+                    if MODE in ["MCvsDATA","COMP"]:
+                        if sample in ["data"]                         : eval("t_"+sample).Draw("(%s) >> %s%s"%(variable,region,sample)   ,                                           cut  );   # No weights on data
+                    eval(                                                    "t_Signal1").Draw("(%s) >> %s%s"%(variable,region,"Signal1"), "(%s*%s)*(%s)"%(weight,self.Signal_Scale1,cut) );   # Extra scaling on signal
+                    eval(                                                    "t_Signal2").Draw("(%s) >> %s%s"%(variable,region,"Signal2"), "(%s*%s)*(%s)"%(weight,self.Signal_Scale2,cut) );   # Extra scaling on signal
+                    if sample in ["QCD","WJets","TTbar","STop","Rest"]: eval("t_"+sample).Draw("(%s) >> %s%s"%(variable,region,sample)   , "(%s*%s)*(%s)"%(weight,1                 ,cut) );   # MC only weights on MC BKG
+                if MODE=="COMP":
+                    eval("t_QCD").Draw("(%s) >> %s%s"%(variable,region,"QCD_S"), "(%s*%s)*(%s)"%(weight,1  ,cut1) );  print "  got SR QCD histo"; 
+
+        # for region in ["h_"]:
+        #     if MODE=="DECO":self.Signal_Scale1=1;
+        #     for sample in ["data","Signal1","Signal2","QCD","TTbar","STop","WJets","Rest"]:
+        #         if MODE in ["MCvsDATA"]:
+        #             if sample in ["data"]                         : eval("t_"+sample).Draw("(%s) >> %s%s"%(variable,region,sample),                                       cut  );   # No weights on data
+        #         #if sample in ["Signal1","Signal2"]                : eval("t_"+sample).Draw("(%s) >> %s%s"%(variable,region,sample), "(%s*%s)*(%s)"%(weight,self.Signal_Scale,cut) );   # Extra scaling on signal
+        #         eval(                                                    "t_Signal1").Draw("(%s) >> %s%s"%(variable,region,"Signal1"), "(%s*%s)*(%s)"%(weight,self.Signal_Scale1,cut) );   # Extra scaling on signal
+        #         eval(                                                    "t_Signal2").Draw("(%s) >> %s%s"%(variable,region,"Signal2"), "(%s*%s)*(%s)"%(weight,self.Signal_Scale2,cut) );   # Extra scaling on signal
+        #         if sample in ["QCD","TTbar","STop","WJets","Rest"]: eval("t_"+sample).Draw("(%s) >> %s%s"%(variable,region,sample), "(%s*%s)*(%s)"%(weight,1             ,cut) );   # MC only weights on MC BKG
+        # #    if MODE=="COMP":
+        # #        eval("t_QCD").Draw("(%s) >> %s%s"%(variable,region,"QCD_S"), "(%s*%s)*(%s)"%(weight,1  ,cut1) );
         print "2"; 
 
         if MODE in ["DECO"]:            #comp = ["R4q","R3q","R2q","W","Rlqq","Rlq","Rest"];
