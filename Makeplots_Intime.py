@@ -750,7 +750,7 @@ class ANALYSIS:
         for h in [h_data,h_Signal1,h_Signal2,h_QCD,h_TTbar,h_STop,h_WJets,h_Rest,h_TotalMC ]:h=UnderOverFlow1D(h);
 
         #Add NORM defination;
-        NORM_s1=h_TotalMC.Integral()/(h_Signal1.Integral()+0.000001);
+        NORM_s1=h_TotalMC.Integral()/(h_Signal2.Integral()+0.000001);
         if REGION[:3] in ["PS3","CR4","SR4"]                        : NORM_s1=0;
         elif                     NORM_s1>=300000: NORM_s1=300000;
         elif  300000>NORM_s1 and NORM_s1>=100000: NORM_s1= 100000;
