@@ -98,7 +98,7 @@ class ANALYSIS:
         self.KeepColumn = {"MET_et", "Nj8", "weight"}
         self.Plot2DFaster = False
         self.Optimal = True
-        self.Intime_Cut_Variable = ["DPhi_mgR_mg","DPhi_mg_MET","DPhi_mgR_MET","MET_o_PT_R","MR_v2"];
+        self.Intime_Cut_Variable = ["DPhi_g_H","DPhi_H_MET","MH_v1"];
 
     #================ SETTINGS FOR Canvas/pads/histos and more ==================
     def setTDRStyle(self):
@@ -208,9 +208,9 @@ class ANALYSIS:
             #self.construct_plot(Nj, "JetMass_Nj2_a"    ,selection          ,"",tag  ,50, 0 ,250,"Mj_a, Nj=2"                        ,"Events" ,logy,CR);             
             #self.construct_plot(Nj, "JetMass_Nj2_c"    ,selection          ,"",tag  ,50, 0 ,250,"Mj_c, Nj=2"                        ,"Events" ,logy,CR);             
             self.construct_plot(Nj, "Mj_a"    ,selection          ,"",tag  ,25, 0 ,250,"Mj_a(GeV), Nj>=2"                        ,"Events" ,logy,CR);             
-            self.construct_plot(Nj,"MH_v1"    ,selection, "", tag  ,25,0,250 ,"Mj_a_v1 (GeV),NJ>=2" , "Events" ,logy,CR,Intime=True);
-            self.construct_plot(Nj,"DPhi_g_H",selection,"",tag,32,0,3.2,"|#Delta#phi(g,H)|"          , "Events" ,logy,CR,Intime=True);
-            self.construct_plot(Nj,"DPhi_H_MET",selection,"",tag,32,0,3.2,"|#Delta#phi(MET,H)|"          , "Events" ,logy,CR,Intime=True);
+            self.construct_plot(Nj,"MH_v1"    ,selection, "", tag  ,25,0,250 ,"Mj_a_v1 (GeV),Nj>=2" , "Events" ,logy,CR,Intime=True);
+            self.construct_plot(Nj,"DPhi_g_H",selection,"",tag,32,0,3.2,"|#Delta#phi(g,H)|,Nj>=2"          , "Events" ,logy,CR,Intime=True);
+            self.construct_plot(Nj,"DPhi_H_MET",selection,"",tag,32,0,3.2,"|#Delta#phi(MET,H)|,Nj>=2"          , "Events" ,logy,CR,Intime=True);
             #self.construct_plot(Nj, "Mj_a"    ,selection          ,"",tag  ,25, 0 ,250,"Mj_a, Nj>=2"                        ,"Events" ,logy,CR);             
             #self.construct_plot(Nj, "fabs(Etaj_a - Etaj_c)"    ,selection          ,"",tag  ,10, 0 ,3,"|#Delta#etajj|,Nj>=2"                        ,"Events" ,logy,CR);             
             #self.construct_plot(Nj, "PTj_a"    ,selection          ,"",tag  ,50, 100 ,2200,"PTj_a, Nj=2"                        ,"Events" ,logy,CR);             
@@ -382,7 +382,7 @@ class ANALYSIS:
 
     def construct_plot(self,Nj,variable,cut,cut1,tag,nbin,min,max,xtitle="",ytitle="",logy=1,CR=0,Intime=False):
         
-        SFs=options.SFs; channel=options.channel; MODE=options.MODE;  REGION=options.REGION; 
+        SFs=options.SFs; channel=options.channel; MODE=options.MODE;  REGION=options.REGION; year=options.y; 
         print " -->  MODE:",MODE," variable:",variable,"\n       { "+cut+" }\n";
 
         #----------------- paths to root files -------------------
@@ -687,7 +687,7 @@ class ANALYSIS:
             h_Rest    = df_Rest.Filter(   cut).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_Rest" );
             h_Signal1 = df_Signal1.Filter(cut).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_Signal1"); h_Signal1.Scale(self.Signal_Scale1);
             h_Signal2 = df_Signal2.Filter(cut).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_Signal2"); h_Signal2.Scale(self.Signal_Scale2);
-            h_QCD_S   = df_QCD.Filter(   cut1).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_QCD_S"  );
+            #h_QCD_S   = df_QCD.Filter(   cut1).Histo1D(Bin, Intime_plot_var, weight).GetValue().Clone("h_QCD_S"  );
         else:
             for region in ["h_"]:
                 for sample in ["data","Signal1","Signal2","QCD","WJets","TTbar","STop","Rest"]:
